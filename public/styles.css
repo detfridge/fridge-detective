@@ -1,0 +1,415 @@
+/* ===== فونت وزیرمتن (لوکال) ===== */
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("fonts/Vazirmatn-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("fonts/Vazirmatn-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("fonts/Vazirmatn-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Vazirmatn";
+  src: url("fonts/Vazirmatn-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-display: swap;
+}
+
+/* ===== متغیرها ===== */
+:root {
+  --bg: #0e0c0b;
+  --bg-2: #17130f;
+  --surface: rgba(255, 255, 255, 0.045);
+  --surface-strong: rgba(255, 255, 255, 0.075);
+  --border: rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --text: #f5efe8;
+  --text-dim: #b8ada2;
+  --text-faint: #b3a79c;
+
+  --amber: #ffb340;
+  --orange: #ff7a3d;
+  --tomato: #ff5d5d;
+  --pistachio: #7fd18b;
+  --saffron: #ffd166;
+  --teal: #4dd0c1;
+
+  --grad-warm: linear-gradient(135deg, #ff9d2f 0%, #ff6b45 55%, #ff4d6d 100%);
+  --grad-soft: linear-gradient(135deg, rgba(255, 157, 47, 0.16), rgba(255, 77, 109, 0.10));
+
+  --radius: 22px;
+  --radius-sm: 14px;
+  --shadow: 0 22px 50px -22px rgba(0, 0, 0, 0.85);
+  --glow: 0 0 0 1px rgba(255, 179, 64, 0.18), 0 18px 45px -20px rgba(255, 122, 61, 0.55);
+  --blur: saturate(150%) blur(18px);
+}
+
+/* ===== پایه ===== */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: "Vazirmatn", "Segoe UI", Tahoma, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.85;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* اعداد فارسی در کل رابط */
+body { font-feature-settings: "ss01"; }
+
+h1, h2, h3, h4 { line-height: 1.5; font-weight: 700; }
+
+/* ===== پس‌زمینه تزئینی ===== */
+.bg-decor { position: fixed; inset: 0; z-index: -1; overflow: hidden; background:
+  radial-gradient(1200px 600px at 80% -10%, #241a12 0%, transparent 60%),
+  radial-gradient(900px 500px at 10% 110%, #1a1420 0%, transparent 60%),
+  var(--bg); }
+
+.blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.5; }
+.blob-1 { width: 46vw; height: 46vw; top: -14vw; inset-inline-start: -10vw;
+  background: radial-gradient(circle, rgba(255, 157, 47, 0.55), transparent 65%); animation: float1 22s ease-in-out infinite; }
+.blob-2 { width: 40vw; height: 40vw; bottom: -14vw; inset-inline-end: -8vw;
+  background: radial-gradient(circle, rgba(255, 77, 109, 0.42), transparent 65%); animation: float2 27s ease-in-out infinite; }
+.blob-3 { width: 32vw; height: 32vw; top: 42%; inset-inline-start: 55%;
+  background: radial-gradient(circle, rgba(77, 208, 193, 0.28), transparent 65%); animation: float1 31s ease-in-out infinite reverse; }
+
+@keyframes float1 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(4vw, 5vh) scale(1.08); } }
+@keyframes float2 { 0%,100% { transform: translate(0,0) scale(1); } 50% { transform: translate(-5vw, -4vh) scale(1.12); } }
+
+/* ===== چیدمان ===== */
+.app { max-width: 1120px; margin: 0 auto; padding: 40px 20px 60px; }
+
+/* ===== هدر ===== */
+.header { text-align: center; margin-bottom: 34px; }
+
+.logo-wrap {
+  width: 96px; height: 96px; margin: 0 auto 16px;
+  display: grid; place-items: center;
+  border-radius: 30px;
+  background: var(--grad-soft);
+  border: 1px solid var(--border-strong);
+  backdrop-filter: var(--blur);
+  box-shadow: var(--glow);
+  animation: bob 4.5s ease-in-out infinite;
+}
+.logo { font-size: 52px; line-height: 1; filter: drop-shadow(0 6px 14px rgba(0,0,0,.5)); }
+
+@keyframes bob { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-8px) rotate(3deg); } }
+
+.header h1 {
+  font-size: clamp(30px, 6vw, 46px);
+  font-weight: 800;
+  background: var(--grad-warm);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
+}
+
+.tagline { color: var(--text-dim); font-size: 16px; margin-top: 6px; }
+
+.header-badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 16px; }
+
+.pill {
+  font-size: 12.5px; color: var(--text-dim);
+  padding: 6px 14px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--border);
+  backdrop-filter: var(--blur);
+}
+
+/* ===== کارت‌ها ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 26px;
+  backdrop-filter: var(--blur);
+  -webkit-backdrop-filter: var(--blur);
+  box-shadow: var(--shadow);
+  animation: rise 0.5s ease both;
+}
+
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+.card-head h2 { font-size: 20px; display: flex; align-items: center; gap: 10px; }
+.section-icon { font-size: 22px; }
+
+.count-badge {
+  font-size: 12.5px; color: var(--saffron); font-weight: 500;
+  background: rgba(255, 209, 102, 0.10);
+  border: 1px solid rgba(255, 209, 102, 0.28);
+  padding: 3px 12px; border-radius: 999px;
+}
+
+/* ===== ناحیه رهاکردن فایل ===== */
+.drop-zone {
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius);
+  padding: 52px 22px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.28s ease;
+  background: radial-gradient(circle at 50% 0%, rgba(255, 157, 47, 0.07), transparent 70%);
+}
+.drop-zone:hover, .drop-zone:focus-visible {
+  border-color: var(--amber);
+  background: radial-gradient(circle at 50% 0%, rgba(255, 157, 47, 0.16), transparent 70%);
+  transform: translateY(-3px);
+  outline: none;
+}
+.drop-zone.dragover {
+  border-color: var(--orange);
+  background: radial-gradient(circle at 50% 0%, rgba(255, 122, 61, 0.24), transparent 70%);
+  transform: scale(1.01);
+}
+
+.drop-icon { font-size: 60px; margin-bottom: 10px; animation: bob 5s ease-in-out infinite; }
+.drop-text { font-size: 18px; font-weight: 500; }
+.drop-sub { color: var(--text-dim); font-size: 14.5px; margin-top: 4px; }
+.drop-hint { color: var(--text-faint); font-size: 12.5px; margin-top: 10px; }
+
+/* ===== پیش‌نمایش ===== */
+.preview-title { font-size: 18px; }
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.preview-item {
+  position: relative; aspect-ratio: 1;
+  border-radius: var(--radius-sm); overflow: hidden;
+  border: 1px solid var(--border);
+  animation: rise 0.35s ease both;
+}
+.preview-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.35s ease; }
+.preview-item:hover img { transform: scale(1.08); }
+
+.preview-remove {
+  position: absolute; top: 6px; inset-inline-end: 6px;
+  width: 26px; height: 26px; border-radius: 50%;
+  border: none; cursor: pointer;
+  background: rgba(10, 8, 8, 0.72); color: #fff;
+  font-size: 17px; line-height: 1;
+  display: grid; place-items: center;
+  backdrop-filter: blur(6px);
+  transition: 0.2s ease;
+}
+.preview-remove:hover { background: var(--tomato); transform: rotate(90deg); }
+
+.preview-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* ===== دکمه‌ها ===== */
+.btn {
+  font-family: inherit; font-size: 15px; font-weight: 500;
+  padding: 12px 24px; border-radius: 999px;
+  border: 1px solid transparent; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 8px;
+  transition: 0.22s ease;
+}
+.btn:active { transform: scale(0.97); }
+.btn-icon { font-size: 17px; }
+
+.btn-primary { background: var(--grad-warm); color: #1a0f06; font-weight: 700; box-shadow: 0 12px 28px -12px rgba(255, 122, 61, 0.8); }
+.btn-primary:hover { filter: brightness(1.08); transform: translateY(-2px); box-shadow: 0 18px 34px -12px rgba(255, 122, 61, 0.95); }
+
+.btn-secondary { background: var(--surface-strong); color: var(--text); border-color: var(--border-strong); backdrop-filter: var(--blur); }
+.btn-secondary:hover { background: rgba(255, 255, 255, 0.13); transform: translateY(-2px); }
+
+.btn-ghost { background: transparent; color: var(--text-faint); }
+.btn-ghost:hover { color: var(--tomato); background: rgba(255, 93, 93, 0.08); }
+
+/* ===== راهنما ===== */
+.tips { list-style: none; margin-top: 22px; display: grid; gap: 6px; }
+.tips li { color: var(--text-faint); font-size: 13.5px; padding-inline-start: 20px; position: relative; }
+.tips li::before { content: "◂"; position: absolute; inset-inline-start: 0; color: var(--amber); }
+
+/* ===== در حال بررسی ===== */
+.loading-card { text-align: center; padding: 56px 26px; }
+.loading-content h3 { font-size: 21px; margin-bottom: 4px; }
+.detective-spinner { font-size: 66px; animation: search 2.6s ease-in-out infinite; display: inline-block; }
+@keyframes search {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  25% { transform: translateX(-18px) rotate(-12deg); }
+  75% { transform: translateX(18px) rotate(12deg); }
+}
+.loading-dots span { animation: blink 1.4s infinite; font-size: 26px; color: var(--amber); }
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes blink { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+.loading-sub { color: var(--text-dim); font-size: 14.5px; }
+
+.progress-track { height: 5px; border-radius: 999px; background: rgba(255,255,255,0.08); overflow: hidden; margin: 22px auto 0; max-width: 340px; }
+.progress-bar { height: 100%; width: 40%; border-radius: 999px; background: var(--grad-warm); animation: slide 1.7s ease-in-out infinite; }
+@keyframes slide { 0% { transform: translateX(120%); } 100% { transform: translateX(-260%); } }
+
+/* ===== خطا ===== */
+.error-card { text-align: center; border-color: rgba(255, 93, 93, 0.34); background: rgba(255, 93, 93, 0.06); }
+.error-icon { font-size: 52px; margin-bottom: 6px; }
+.error-card h3 { color: var(--tomato); font-size: 21px; }
+#error-message { color: var(--text-dim); margin: 8px 0 20px; font-size: 14.5px; word-break: break-word; }
+
+/* ===== نتایج ===== */
+.results { display: grid; gap: 22px; }
+
+.use-soon-banner {
+  display: flex; align-items: center; gap: 16px;
+  padding: 18px 22px; border-radius: var(--radius);
+  background: linear-gradient(135deg, rgba(255, 179, 64, 0.16), rgba(255, 93, 93, 0.12));
+  border: 1px solid rgba(255, 179, 64, 0.34);
+  backdrop-filter: var(--blur);
+  animation: rise 0.5s ease both;
+}
+.banner-icon { font-size: 34px; animation: ring 2.4s ease-in-out infinite; }
+@keyframes ring { 0%,70%,100% { transform: rotate(0); } 75% { transform: rotate(14deg); } 85% { transform: rotate(-14deg); } }
+.banner-content h3 { color: var(--saffron); font-size: 17px; }
+.banner-content p { color: var(--text-dim); font-size: 14.5px; }
+
+/* ===== مواد ===== */
+.ingredients-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(168px, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.ingredient-chip {
+  display: flex; flex-direction: column; gap: 7px;
+  padding: 10px 14px; min-width: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  font-size: 14.5px;
+  transition: 0.22s ease;
+  animation: rise 0.35s ease both;
+}
+.ingredient-chip:hover { transform: translateY(-3px); border-color: var(--border-strong); background: rgba(255,255,255,0.11); }
+.ingredient-chip.use-soon { border-color: rgba(255, 179, 64, 0.42); background: rgba(255, 179, 64, 0.09); }
+
+.chip-top { display: flex; align-items: baseline; gap: 10px; justify-content: space-between; }
+.chip-name { font-weight: 500; min-width: 0; overflow-wrap: anywhere; line-height: 1.6; }
+.chip-cat { font-size: 11.5px; color: var(--text-faint); flex: 0 0 auto; white-space: nowrap; }
+.chip-flag { font-size: 11px; color: var(--saffron); }
+
+.confidence-bar { height: 4px; border-radius: 999px; background: rgba(255,255,255,0.10); overflow: hidden; display: block; }
+.confidence-fill { height: 100%; display: block; border-radius: 999px; transition: width 0.7s ease; }
+.confidence-high { background: linear-gradient(90deg, var(--pistachio), var(--teal)); }
+.confidence-mid { background: linear-gradient(90deg, var(--saffron), var(--amber)); }
+.confidence-low { background: linear-gradient(90deg, var(--tomato), #ff8f6b); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 18px; font-size: 12px; color: var(--text-faint); }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+.dot-high { background: var(--pistachio); }
+.dot-mid { background: var(--saffron); }
+.dot-low { background: var(--tomato); }
+.dot-soon { background: var(--amber); box-shadow: 0 0 0 3px rgba(255, 179, 64, 0.18); }
+
+/* ===== غذاها ===== */
+.recipes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 18px; }
+
+.recipe-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  backdrop-filter: var(--blur);
+  box-shadow: var(--shadow);
+  transition: 0.28s ease;
+  position: relative; overflow: hidden;
+  animation: rise 0.45s ease both;
+}
+.recipe-card::before {
+  content: ""; position: absolute; inset-block-start: 0; inset-inline: 0;
+  height: 3px; background: var(--grad-warm); opacity: 0.85;
+}
+.recipe-card:hover { transform: translateY(-5px); border-color: var(--border-strong); box-shadow: 0 26px 55px -20px rgba(0,0,0,0.9); }
+
+.recipe-header { margin-bottom: 12px; }
+.recipe-name { font-size: 19px; font-weight: 700; margin-bottom: 8px; }
+.recipe-meta { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.recipe-badge {
+  font-size: 12px; padding: 3px 11px; border-radius: 999px;
+  background: rgba(255,255,255,0.07); color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+.recipe-badge.match { background: rgba(127, 209, 139, 0.14); color: var(--pistachio); border-color: rgba(127, 209, 139, 0.32); font-weight: 500; }
+
+.recipe-desc { color: var(--text-dim); font-size: 14.5px; margin-bottom: 16px; }
+
+.recipe-columns { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.recipe-col h4 { font-size: 13px; margin-bottom: 7px; color: var(--text-faint); font-weight: 500; }
+.recipe-col ul { list-style: none; display: grid; gap: 4px; }
+.recipe-col li { font-size: 13.5px; padding-inline-start: 16px; position: relative; color: var(--text-dim); }
+.recipe-col.available li::before { content: "✓"; position: absolute; inset-inline-start: 0; color: var(--pistachio); }
+.recipe-col.missing li::before { content: "+"; position: absolute; inset-inline-start: 0; color: var(--tomato); }
+.recipe-col .empty { color: var(--text-faint); font-size: 13px; padding: 0; }
+.recipe-col .empty::before { content: none; }
+
+.recipe-instructions h4 { font-size: 13px; margin-bottom: 8px; color: var(--text-faint); font-weight: 500; }
+.recipe-instructions ol { padding-inline-start: 20px; display: grid; gap: 6px; }
+.recipe-instructions li { font-size: 13.5px; color: var(--text-dim); }
+.recipe-instructions li::marker { color: var(--amber); font-weight: 700; }
+
+/* ===== یادداشت و فوتر ===== */
+.notes-card { padding: 18px 22px; }
+.notes-card p { color: var(--text-dim); font-size: 14px; }
+
+.results-actions { display: flex; justify-content: center; padding-top: 4px; }
+
+.footer { text-align: center; margin-top: 46px; color: var(--text-faint); font-size: 13.5px; }
+.footer-note { font-size: 12px; margin-top: 6px; opacity: 0.8; }
+
+/* ===== ابزار ===== */
+.hidden { display: none !important; }
+
+::selection { background: rgba(255, 157, 47, 0.32); }
+
+::-webkit-scrollbar { width: 10px; }
+::-webkit-scrollbar-track { background: #100e0d; }
+::-webkit-scrollbar-thumb { background: #3a322c; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #55483f; }
+
+@media (max-width: 600px) {
+  .app { padding: 26px 14px 44px; }
+  .card { padding: 20px; }
+  .drop-zone { padding: 38px 16px; }
+  .recipe-columns { grid-template-columns: 1fr; }
+  .preview-actions .btn { flex: 1 1 auto; justify-content: center; }
+  .logo-wrap { width: 80px; height: 80px; border-radius: 26px; }
+  .logo { font-size: 42px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001s !important; transition-duration: 0.001s !important; }
+}
+
+/* ===== دکمه‌های دوربین و گالری ===== */
+.upload-actions {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  justify-content: center; margin-top: 18px;
+}
+.upload-actions .btn { flex: 1 1 200px; justify-content: center; }
+
+.install-btn { margin: 0 auto 18px; }
+
+@media (max-width: 600px) {
+  .upload-actions .btn { flex: 1 1 100%; }
+}

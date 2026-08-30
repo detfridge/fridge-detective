@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#12100f">
+  <title>کارآگاه یخچال | چی بپزم؟</title>
+  <meta name="description" content="از یخچال و کابینت آشپزخونه‌ات عکس بگیر، هوش مصنوعی مواد اولیه رو تشخیص می‌ده و می‌گه چی می‌تونی بپزی.">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="کارآگاه یخچال">
+  <meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+  <div class="bg-decor" aria-hidden="true">
+    <span class="blob blob-1"></span>
+    <span class="blob blob-2"></span>
+    <span class="blob blob-3"></span>
+  </div>
+
+  <div class="app">
+    <header class="header">
+      <div class="logo-wrap"><div class="logo">🕵️‍♂️</div></div>
+      <h1>کارآگاه یخچال</h1>
+      <p class="tagline">از یخچالت عکس بگیر، بفهم امشب چی بپزی</p>
+      <div class="header-badges">
+        <span class="pill">تشخیص هوشمند مواد اولیه</span>
+        <span class="pill">اولویت غذای ایرانی</span>
+        <span class="pill">هشدار مواد فوری</span>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- بخش بارگذاری تصویر -->
+      <section id="upload-section" class="card upload-card">
+        <div id="drop-zone" class="drop-zone" tabindex="0" role="button"
+             aria-label="انتخاب عکس‌های یخچال یا کابینت آشپزخانه">
+          <div class="drop-icon">📸</div>
+          <p class="drop-text">عکس‌های یخچال یا کابینت رو اینجا بکش و رها کن</p>
+          <p class="drop-sub">یا کلیک کن تا از دستگاهت انتخاب کنی</p>
+          <p class="drop-hint">فرمت‌های تصویری • حداکثر ۱۰ عکس • هر عکس تا ۲۰ مگابایت</p>
+          <input type="file" id="file-input" multiple accept="image/*" hidden>
+          <input type="file" id="camera-input" accept="image/*" capture="environment" hidden>
+        </div>
+
+        <div class="upload-actions">
+          <button id="camera-btn" type="button" class="btn btn-primary">
+            <span class="btn-icon" aria-hidden="true">📷</span> عکس گرفتن با دوربین
+          </button>
+          <button id="browse-btn" type="button" class="btn btn-secondary">
+            <span class="btn-icon" aria-hidden="true">🖼</span> انتخاب از گالری
+          </button>
+        </div>
+
+        <div id="preview-area" class="preview-area hidden">
+          <div class="card-head">
+            <h2 class="preview-title">عکس‌های انتخاب‌شده</h2>
+            <span id="preview-count" class="count-badge"></span>
+          </div>
+          <div id="preview-grid" class="preview-grid"></div>
+          <div class="preview-actions">
+            <button id="analyze-btn" type="button" class="btn btn-primary">
+              <span class="btn-icon" aria-hidden="true">🔍</span> شروع بررسی یخچال
+            </button>
+            <button id="add-camera-btn" type="button" class="btn btn-secondary">
+              <span class="btn-icon" aria-hidden="true">📷</span> عکس دیگر بگیر
+            </button>
+            <button id="add-more-btn" type="button" class="btn btn-secondary">
+              <span class="btn-icon" aria-hidden="true">+</span> از گالری
+            </button>
+            <button id="clear-btn" type="button" class="btn btn-ghost">حذف همه</button>
+          </div>
+        </div>
+
+        <ul class="tips">
+          <li>نور کافی باشه و درِ یخچال کامل باز باشه.</li>
+          <li>از هر قسمت (طبقات، درِ یخچال، فریزر، کابینت) جدا عکس بگیر.</li>
+          <li>برچسب و اسم محصول‌ها تو کادر باشه تا دقیق‌تر تشخیص داده بشن.</li>
+        </ul>
+      </section>
+
+      <!-- بخش در حال بررسی -->
+      <section id="loading-section" class="card loading-card hidden" aria-live="polite">
+        <div class="loading-content">
+          <div class="detective-spinner">🕵️</div>
+          <h3>در حال بررسی پرونده یخچال…</h3>
+          <p class="loading-dots" aria-hidden="true"><span>.</span><span>.</span><span>.</span></p>
+          <p id="loading-sub" class="loading-sub">کارآگاه داره سرنخ‌ها رو بررسی می‌کنه؛ چند لحظه صبر کن.</p>
+          <div class="progress-track" aria-hidden="true"><div class="progress-bar"></div></div>
+        </div>
+      </section>
+
+      <!-- بخش خطا -->
+      <section id="error-section" class="card error-card hidden" aria-live="assertive">
+        <div class="error-icon">⚠️</div>
+        <h3>پرونده به بن‌بست خورد!</h3>
+        <p id="error-message"></p>
+        <button id="retry-btn" type="button" class="btn btn-primary">تلاش دوباره</button>
+      </section>
+
+      <!-- بخش نتایج -->
+      <section id="results-section" class="results hidden">
+        <div id="use-soon-banner" class="use-soon-banner hidden">
+          <div class="banner-icon">⏰</div>
+          <div class="banner-content">
+            <h3>این‌ها رو زودتر مصرف کن!</h3>
+            <p id="use-soon-list"></p>
+          </div>
+        </div>
+
+        <div class="card ingredients-card">
+          <div class="card-head">
+            <h2><span class="section-icon" aria-hidden="true">🔎</span> مواد شناسایی‌شده</h2>
+            <span id="ingredients-count" class="count-badge"></span>
+          </div>
+          <div id="ingredients-grid" class="ingredients-grid"></div>
+          <p class="legend">
+            <span class="legend-item"><i class="dot dot-high"></i> اطمینان بالا</span>
+            <span class="legend-item"><i class="dot dot-mid"></i> اطمینان متوسط</span>
+            <span class="legend-item"><i class="dot dot-low"></i> اطمینان کم</span>
+            <span class="legend-item"><i class="dot dot-soon"></i> مصرف فوری</span>
+          </p>
+        </div>
+
+        <div class="recipes-section">
+          <div class="card-head">
+            <h2><span class="section-icon" aria-hidden="true">🍳</span> پیشنهاد غذا</h2>
+            <span id="recipes-count" class="count-badge"></span>
+          </div>
+          <div id="recipes-grid" class="recipes-grid"></div>
+        </div>
+
+        <div id="analysis-notes" class="card notes-card hidden">
+          <p><span aria-hidden="true">📝</span> <span id="notes-text"></span></p>
+        </div>
+
+        <div class="results-actions">
+          <button id="new-analysis-btn" type="button" class="btn btn-primary">
+            <span class="btn-icon" aria-hidden="true">🕵️</span> بررسی عکس‌های جدید
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <button id="install-btn" type="button" class="btn btn-secondary install-btn hidden">
+        <span class="btn-icon" aria-hidden="true">⬇</span> نصب روی گوشی
+      </button>
+      <p>کارآگاه یخچال — از ته‌مانده‌های یخچال یه غذای درست‌وحسابی دربیار</p>
+      <p class="footer-note">پیشنهادها بر پایهٔ تشخیص تصویری هستن؛ قبل از پخت، تاریخ انقضا و سالم بودن مواد رو خودت بررسی کن.</p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

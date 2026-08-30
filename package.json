@@ -1,0 +1,28 @@
+{
+  "name": "fridge-detective",
+  "version": "1.0.0",
+  "description": "کارآگاه یخچال — تشخیص مواد اولیه از عکس یخچال و پیشنهاد غذا با هوش مصنوعی",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "fridge",
+    "recipe",
+    "ai",
+    "persian",
+    "farsi",
+    "gemini"
+  ],
+  "author": "Ebi",
+  "license": "MIT",
+  "dependencies": {
+    "@google/genai": "^2.19.0",
+    "express": "^5.2.1",
+    "multer": "^2.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
