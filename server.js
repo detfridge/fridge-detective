@@ -1,3 +1,4 @@
+const crypto = require("crypto");
 const dns = require("dns");
 dns.setDefaultResultOrder("ipv4first");
 
@@ -144,6 +145,16 @@ async function generateWithFallback(parts) {
   throw lastErr || new Error("هیچ مدلی پاسخ نداد");
 }
 
+// قفل دسترسی اختیاری: اگر ACCESS_CODE ست شود، تحلیل بدون رمز انجام نمی‌شود
+const ACCESS_CODE = (process.env.ACCESS_CODE || "").trim();
+
+function timingSafeEq(a, b) {
+  const A = Buffer.from(String(a));
+  const B = Buffer.from(String(b));
+  if (A.length !== B.length) return false;
+  return crypto.timingSafeEqual(A, B);
+}
+
 // محدودیت نرخ ساده در حافظه: جلوگیری از مصرف بی‌رویه سهمیه API وقتی اپ روی اینترنت است
 const RATE_WINDOW_MS = 60 * 60 * 1000;
 const RATE_MAX = Number(process.env.RATE_LIMIT_PER_HOUR || 30);
@@ -173,6 +184,13 @@ app.post("/api/analyze", upload.array("images", 10), async (req, res) => {
 
     if (!req.files || req.files.length === 0) {
       return res.status(400).json({ error: "هیچ عکسی ارسال نشد." });
+    }
+
+    if (ACCESS_CODE) {
+      const given = req.headers["x-access-code"] || req.body?.accessCode || "";
+      if (!timingSafeEq(given, ACCESS_CODE)) {
+        return res.status(401).json({ error: "رمز دسترسی درست نیست." });
+      }
     }
 
     const ip = (req.headers["x-forwarded-for"] || "").split(",")[0].trim() || req.ip;
@@ -234,6 +252,7 @@ app.get("/api/health", (req, res) => {
   res.json({
     status: "ok",
     hasApiKey: !!process.env.GEMINI_API_KEY,
+    requiresCode: !!ACCESS_CODE,
     models: MODEL_CHAIN,
   });
 });
