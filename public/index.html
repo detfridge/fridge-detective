@@ -21,6 +21,27 @@
     اینترنت قطع است. اپ باز می‌شود ولی تحلیل عکس نیاز به اینترنت دارد.
   </div>
 
+  <!-- دوربین درون‌برنامه‌ای -->
+  <div id="camera-modal" class="camera-modal hidden" role="dialog" aria-modal="true"
+       aria-label="گرفتن عکس با دوربین">
+    <video id="camera-video" class="camera-video" playsinline autoplay muted></video>
+    <canvas id="camera-canvas" class="camera-canvas" aria-hidden="true"></canvas>
+
+    <div class="camera-top">
+      <button id="camera-close" type="button" class="camera-icon-btn" aria-label="بستن دوربین">✕</button>
+      <span id="camera-shots" class="camera-shots" role="status"></span>
+      <button id="camera-switch" type="button" class="camera-icon-btn" aria-label="تغییر دوربین جلو و عقب">🔄</button>
+    </div>
+
+    <p id="camera-hint" class="camera-hint">در یخچال را باز کن و کل قفسه‌ها را در کادر بگیر</p>
+
+    <div class="camera-bottom">
+      <button id="camera-done" type="button" class="camera-text-btn">تمام</button>
+      <button id="camera-shutter" type="button" class="camera-shutter" aria-label="گرفتن عکس"></button>
+      <span class="camera-spacer" aria-hidden="true"></span>
+    </div>
+  </div>
+
   <div class="bg-decor" aria-hidden="true">
     <span class="blob blob-1"></span>
     <span class="blob blob-2"></span>
@@ -46,7 +67,7 @@
              aria-label="انتخاب عکس‌های یخچال یا کابینت آشپزخانه">
           <div class="drop-icon">📸</div>
           <p class="drop-text">عکس‌های یخچال یا کابینت رو اینجا بکش و رها کن</p>
-          <p class="drop-sub">یا کلیک کن تا از دستگاهت انتخاب کنی</p>
+          <p class="drop-sub">یا کلیک کن تا از گالری انتخاب کنی</p>
           <p class="drop-hint">فرمت‌های تصویری • حداکثر ۱۰ عکس • هر عکس تا ۲۰ مگابایت</p>
           <input type="file" id="file-input" multiple accept="image/*" hidden>
           <input type="file" id="camera-input" accept="image/*" capture="environment" hidden>

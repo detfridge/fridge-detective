@@ -118,8 +118,147 @@ cameraInput.addEventListener("change", (e) => {
   cameraInput.value = "";
 });
 
-$("#camera-btn").addEventListener("click", () => cameraInput.click());
-$("#add-camera-btn").addEventListener("click", () => cameraInput.click());
+// دوربین واقعی با getUserMedia. اگر پشتیبانی نشد یا اجازه نداد،
+// به input فایل با capture برمی‌گردیم (که در بعضی مرورگرها گالری باز می‌کند).
+const cameraModal = $("#camera-modal");
+const cameraVideo = $("#camera-video");
+const cameraCanvas = $("#camera-canvas");
+const cameraShots = $("#camera-shots");
+const cameraHint = $("#camera-hint");
+const cameraShutter = $("#camera-shutter");
+const cameraSwitch = $("#camera-switch");
+
+let cameraStream = null;
+let facingMode = "environment";
+let shotsTaken = 0;
+let captureSeq = 0;
+
+function cameraSupported() {
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia && window.isSecureContext);
+}
+
+async function openCamera() {
+  if (!cameraSupported()) {
+    cameraInput.click();
+    return;
+  }
+  try {
+    await startStream();
+  } catch (err) {
+    showToast(cameraErrorMessage(err));
+    cameraInput.click();
+    return;
+  }
+  shotsTaken = 0;
+  updateShots();
+  cameraHint.classList.remove("hidden");
+  cameraModal.classList.remove("hidden");
+  document.body.style.overflow = "hidden";
+}
+
+async function startStream() {
+  stopStream();
+  cameraStream = await navigator.mediaDevices.getUserMedia({
+    video: {
+      facingMode: { ideal: facingMode },
+      width: { ideal: 1920 },
+      height: { ideal: 1080 },
+    },
+    audio: false,
+  });
+  cameraVideo.srcObject = cameraStream;
+  await cameraVideo.play().catch(() => {});
+}
+
+function stopStream() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach((t) => t.stop());
+    cameraStream = null;
+  }
+  cameraVideo.srcObject = null;
+}
+
+function closeCamera() {
+  stopStream();
+  cameraModal.classList.add("hidden");
+  document.body.style.overflow = "";
+}
+
+function updateShots() {
+  cameraShots.textContent = shotsTaken > 0 ? `${faNum(shotsTaken)} عکس گرفته شد` : "";
+}
+
+function cameraErrorMessage(err) {
+  const name = err && err.name;
+  if (name === "NotAllowedError" || name === "SecurityError") {
+    return "اجازه دسترسی به دوربین داده نشد. از گالری انتخاب کن یا در تنظیمات مرورگر اجازه بده.";
+  }
+  if (name === "NotFoundError" || name === "DevicesNotFoundError") {
+    return "دوربینی پیدا نشد.";
+  }
+  if (name === "NotReadableError") {
+    return "دوربین در اختیار برنامه دیگری است. آن را ببند و دوباره تلاش کن.";
+  }
+  return "باز کردن دوربین ممکن نشد. از گالری انتخاب کن.";
+}
+
+function capturePhoto() {
+  const w = cameraVideo.videoWidth;
+  const h = cameraVideo.videoHeight;
+  if (!w || !h) {
+    showToast("دوربین آماده نیست، یک لحظه صبر کن.");
+    return;
+  }
+
+  cameraCanvas.width = w;
+  cameraCanvas.height = h;
+  cameraCanvas.getContext("2d").drawImage(cameraVideo, 0, 0, w, h);
+
+  cameraShutter.disabled = true;
+  cameraCanvas.toBlob(
+    (blob) => {
+      cameraShutter.disabled = false;
+      if (!blob) {
+        showToast("گرفتن عکس ناموفق بود، دوباره امتحان کن.");
+        return;
+      }
+      // شمارنده در نام فایل: دو عکس در یک میلی‌ثانیه هم‌نام نشوند و حذف نشوند
+      captureSeq += 1;
+      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+      const file = new File([blob], `دوربین-${stamp}-${captureSeq}.jpg`, { type: "image/jpeg" });
+      addFiles([file]);
+      shotsTaken += 1;
+      updateShots();
+      cameraHint.classList.add("hidden");
+      if (selectedFiles.length >= MAX_FILES) closeCamera();
+    },
+    "image/jpeg",
+    0.9
+  );
+}
+
+$("#camera-btn").addEventListener("click", openCamera);
+$("#add-camera-btn").addEventListener("click", openCamera);
+cameraShutter.addEventListener("click", capturePhoto);
+$("#camera-close").addEventListener("click", closeCamera);
+$("#camera-done").addEventListener("click", closeCamera);
+
+cameraSwitch.addEventListener("click", async () => {
+  facingMode = facingMode === "environment" ? "user" : "environment";
+  try {
+    await startStream();
+  } catch {
+    facingMode = facingMode === "environment" ? "user" : "environment";
+    showToast("تغییر دوربین ممکن نشد.");
+    try { await startStream(); } catch { closeCamera(); }
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !cameraModal.classList.contains("hidden")) closeCamera();
+});
+
+window.addEventListener("pagehide", stopStream);
 
 function addFiles(fileList) {
   const problems = [];

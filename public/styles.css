@@ -425,3 +425,88 @@ h1, h2, h3, h4 { line-height: 1.5; font-weight: 700; }
   text-align: center;
 }
 .offline-banner.hidden { display: none; }
+
+/* ===== دوربین درون‌برنامه‌ای ===== */
+.camera-modal {
+  position: fixed; inset: 0; z-index: 200;
+  background: #000;
+  display: flex; align-items: center; justify-content: center;
+  /* روی موبایل نوار آدرس ارتفاع را عوض می‌کند؛ dvh جلوی بریده شدن شاتر را می‌گیرد */
+  height: 100dvh;
+  overscroll-behavior: contain;
+  touch-action: manipulation;
+}
+.camera-modal.hidden { display: none; }
+
+.camera-video {
+  width: 100%; height: 100%;
+  max-height: 100dvh;
+  object-fit: cover;
+  background: #000;
+}
+.camera-canvas { display: none; }
+
+.camera-top {
+  position: absolute; inset-inline: 0; top: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 12px; padding: 14px 16px;
+  padding-top: max(14px, env(safe-area-inset-top));
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.65), transparent);
+}
+.camera-icon-btn {
+  width: 44px; height: 44px; flex: 0 0 auto;
+  border-radius: 999px; border: none; cursor: pointer;
+  background: rgba(0, 0, 0, 0.5); color: #fff;
+  font-size: 19px; font-family: inherit;
+  display: grid; place-items: center;
+  backdrop-filter: blur(6px);
+}
+.camera-icon-btn:active { transform: scale(0.94); }
+
+.camera-shots {
+  font-size: 14px; font-weight: 600; color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 7px 15px; border-radius: 999px;
+  backdrop-filter: blur(6px);
+}
+.camera-shots:empty { display: none; }
+
+.camera-hint {
+  position: absolute; inset-inline: 24px; bottom: 148px;
+  margin: 0; text-align: center;
+  font-size: 14px; line-height: 1.7; color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 10px 16px; border-radius: 14px;
+  backdrop-filter: blur(6px);
+}
+.camera-hint.hidden { display: none; }
+
+.camera-bottom {
+  position: absolute; inset-inline: 0; bottom: 0;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 28px;
+  padding-bottom: max(22px, env(safe-area-inset-bottom));
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.72), transparent);
+}
+.camera-shutter {
+  width: 72px; height: 72px; flex: 0 0 auto;
+  border-radius: 999px; cursor: pointer;
+  background: #fff; border: 5px solid rgba(255, 255, 255, 0.42);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.35);
+  transition: transform 0.12s ease;
+}
+.camera-shutter:active { transform: scale(0.9); }
+.camera-shutter:disabled { opacity: 0.5; cursor: default; }
+
+.camera-text-btn {
+  min-width: 74px;
+  background: none; border: none; cursor: pointer;
+  color: #fff; font-family: inherit; font-size: 16px; font-weight: 600;
+  padding: 12px 6px;
+}
+.camera-spacer { min-width: 74px; }
+
+@media (max-height: 520px) {
+  .camera-hint { bottom: 116px; font-size: 13px; }
+  .camera-shutter { width: 60px; height: 60px; }
+}
