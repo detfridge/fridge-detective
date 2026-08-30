@@ -45,16 +45,35 @@ app.use((req, res, next) => {
 
 app.use(express.static(path.join(__dirname, "public")));
 app.set("trust proxy", 1);
+
+// روی هاست ابری: هدایت اجباری به HTTPS + HSTS
+app.use((req, res, next) => {
+  const proto = req.headers["x-forwarded-proto"];
+  if (proto && proto !== "https") {
+    return res.redirect(308, `https://${req.headers.host}${req.originalUrl}`);
+  }
+  if (proto === "https") {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  next();
+});
+
 app.use(express.json());
 
 const genai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 // زنجیره مدل: اگر مدلی پشتیبانی نشد یا سهمیه پر بود، مدل بعدی امتحان می‌شود
-const MODEL_CHAIN = (process.env.GEMINI_MODEL ? [process.env.GEMINI_MODEL] : []).concat([
-  "gemini-2.5-flash",
-  "gemini-flash-latest",
-  "gemini-2.5-flash-lite",
-  "gemini-flash-lite-latest",
-]);
+const MODEL_CHAIN = [
+  ...new Set(
+    (process.env.GEMINI_MODEL ? [process.env.GEMINI_MODEL.trim()] : []).concat([
+      "gemini-2.5-flash",
+      "gemini-flash-latest",
+      "gemini-2.5-flash-lite",
+      "gemini-flash-lite-latest",
+    ])
+  ),
+];
 
 const ANALYSIS_PROMPT = `تو «کارآگاه یخچال» هستی؛ متخصص تشخیص مواد غذایی از روی عکس و پیشنهاد غذا برای یک کاربر ایرانی.
 
