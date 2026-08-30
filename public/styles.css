@@ -413,3 +413,15 @@ h1, h2, h3, h4 { line-height: 1.5; font-weight: 700; }
 @media (max-width: 600px) {
   .upload-actions .btn { flex: 1 1 100%; }
 }
+
+/* ===== نوار هشدار آفلاین ===== */
+.offline-banner {
+  position: sticky; top: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(90deg, #6b3a12, #8a4a16);
+  color: #ffe9d2; font-size: 13.5px; font-weight: 500;
+  border-bottom: 1px solid rgba(255, 200, 150, 0.28);
+  text-align: center;
+}
+.offline-banner.hidden { display: none; }

@@ -212,13 +212,27 @@ async function analyze() {
   selectedFiles.forEach((f) => formData.append("images", f));
 
   try {
-    const res = await fetch("/api/analyze", { method: "POST", body: formData });
+    const headers = {};
+    const code = localStorage.getItem("fd-access-code");
+    if (code) headers["X-Access-Code"] = code;
+
+    const res = await fetch("/api/analyze", { method: "POST", body: formData, headers });
 
     let data;
     try {
       data = await res.json();
     } catch {
       throw new Error("پاسخ سرور قابل خواندن نبود. لطفاً دوباره تلاش کن.");
+    }
+
+    if (res.status === 401) {
+      localStorage.removeItem("fd-access-code");
+      const entered = prompt("رمز دسترسی را وارد کن:");
+      if (entered) {
+        localStorage.setItem("fd-access-code", entered.trim());
+        throw new Error("رمز ذخیره شد. دوباره روی «بگرد ببین چی می‌شه پخت» بزن.");
+      }
+      throw new Error(data.error || "رمز دسترسی لازم است.");
     }
 
     if (!res.ok) {
@@ -520,3 +534,16 @@ if ("serviceWorker" in navigator) {
     });
   });
 }
+
+// --- وضعیت آفلاین ---
+
+const offlineBanner = document.getElementById("offline-banner");
+
+function syncOnlineState() {
+  if (!offlineBanner) return;
+  offlineBanner.classList.toggle("hidden", navigator.onLine);
+}
+
+window.addEventListener("online", syncOnlineState);
+window.addEventListener("offline", syncOnlineState);
+syncOnlineState();
