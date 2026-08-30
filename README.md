@@ -46,7 +46,7 @@
 نیازمندی: Node.js نسخه ۲۰ یا بالاتر.
 
 ```bash
-git clone https://github.com/USERNAME/fridge-detective.git
+git clone https://github.com/detfridge/fridge-detective.git
 cd fridge-detective
 npm install
 ```
