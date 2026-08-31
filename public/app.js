@@ -12,8 +12,12 @@ const errorSection = $("#error-section");
 const errorMessage = $("#error-message");
 const resultsSection = $("#results-section");
 
-const MAX_FILES = 10;
-const MAX_SIZE = 20 * 1024 * 1024;
+const MAX_FILES = 15;
+const MAX_SIZE = 20 * 1024 * 1024;      // سقف فایل ورودی (قبل از فشرده‌سازی)
+const MAX_TOTAL_SIZE = 15 * 1024 * 1024; // سقف مجموع ارسال (بعد از فشرده‌سازی)
+const COMPRESS_MAX_EDGE = 1280;          // حداکثر ضلع بلند عکس
+const COMPRESS_QUALITY = 0.8;            // کیفیت JPEG
+const COMPRESS_THRESHOLD = 400 * 1024;   // زیر این حجم فشرده نمی‌شود
 
 let selectedFiles = [];
 let objectUrls = [];
@@ -216,21 +220,27 @@ function capturePhoto() {
 
   cameraShutter.disabled = true;
   cameraCanvas.toBlob(
-    (blob) => {
-      cameraShutter.disabled = false;
-      if (!blob) {
-        showToast("گرفتن عکس ناموفق بود، دوباره امتحان کن.");
-        return;
+    async (blob) => {
+      try {
+        if (!blob) {
+          showToast("گرفتن عکس ناموفق بود، دوباره امتحان کن.");
+          return;
+        }
+        // شمارنده در نام فایل: دو عکس در یک میلی‌ثانیه هم‌نام نشوند و حذف نشوند
+        captureSeq += 1;
+        const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+        const file = new File([blob], `دوربین-${stamp}-${captureSeq}.jpg`, { type: "image/jpeg" });
+        const before = selectedFiles.length;
+        await addFiles([file]);
+        if (selectedFiles.length > before) {
+          shotsTaken += 1;
+          updateShots();
+          cameraHint.classList.add("hidden");
+        }
+        if (selectedFiles.length >= MAX_FILES) closeCamera();
+      } finally {
+        cameraShutter.disabled = false;
       }
-      // شمارنده در نام فایل: دو عکس در یک میلی‌ثانیه هم‌نام نشوند و حذف نشوند
-      captureSeq += 1;
-      const stamp = new Date().toISOString().replace(/[:.]/g, "-");
-      const file = new File([blob], `دوربین-${stamp}-${captureSeq}.jpg`, { type: "image/jpeg" });
-      addFiles([file]);
-      shotsTaken += 1;
-      updateShots();
-      cameraHint.classList.add("hidden");
-      if (selectedFiles.length >= MAX_FILES) closeCamera();
     },
     "image/jpeg",
     0.9
@@ -260,30 +270,101 @@ document.addEventListener("keydown", (e) => {
 
 window.addEventListener("pagehide", stopStream);
 
-function addFiles(fileList) {
-  const problems = [];
+// --- فشرده‌سازی عکس در مرورگر ---
+// عکس اصلی گوشی دست‌نخورده می‌ماند؛ فقط نسخه ارسالی کوچک می‌شود.
 
-  for (const file of fileList) {
-    if (!file.type.startsWith("image/")) {
-      problems.push(`«${file.name}» عکس نیست و رد شد.`);
-      continue;
+function readableSize(bytes) {
+  if (bytes < 1024 * 1024) return `${faNum((bytes / 1024).toFixed(0))} کیلوبایت`;
+  return `${faNum((bytes / 1024 / 1024).toFixed(1))} مگابایت`;
+}
+
+async function compressImage(file) {
+  if (file.size <= COMPRESS_THRESHOLD) return file;
+
+  let bitmap;
+  try {
+    bitmap = await createImageBitmap(file);
+  } catch {
+    return file; // فرمت غیرقابل decode: همان فایل اصلی برود
+  }
+
+  const scale = Math.min(1, COMPRESS_MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+  const w = Math.round(bitmap.width * scale);
+  const h = Math.round(bitmap.height * scale);
+
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d");
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bitmap, 0, 0, w, h);
+  bitmap.close?.();
+
+  const blob = await new Promise((resolve) =>
+    canvas.toBlob(resolve, "image/jpeg", COMPRESS_QUALITY)
+  );
+  if (!blob || blob.size >= file.size) return file; // فشرده‌سازی سودی نداشت
+
+  const name = file.name.replace(/\.[^.]+$/, "") + ".jpg";
+  return new File([blob], name, { type: "image/jpeg", lastModified: file.lastModified });
+}
+
+let addingFiles = false;
+
+async function addFiles(fileList) {
+  const incoming = Array.from(fileList);
+  if (incoming.length === 0 || addingFiles) return;
+  addingFiles = true;
+
+  const problems = [];
+  let savedBytes = 0;
+
+  try {
+    for (const original of incoming) {
+      if (!original.type.startsWith("image/")) {
+        problems.push(`«${original.name}» عکس نیست و رد شد.`);
+        continue;
+      }
+      if (original.size > MAX_SIZE) {
+        problems.push(`«${original.name}» بیشتر از ۲۰ مگابایته و رد شد.`);
+        continue;
+      }
+      if (selectedFiles.length >= MAX_FILES) {
+        problems.push(`حداکثر ${faNum(MAX_FILES)} عکس می‌تونی انتخاب کنی.`);
+        break;
+      }
+      // تکراری: بر اساس مشخصات فایل اصلی، قبل از فشرده‌سازی
+      const tag = `${original.name}|${original.size}|${original.lastModified}`;
+      if (selectedFiles.some((f) => f.dedupeTag === tag)) continue;
+
+      const file = await compressImage(original);
+      savedBytes += original.size - file.size;
+
+      const total = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+      if (total + file.size > MAX_TOTAL_SIZE) {
+        problems.push(
+          `مجموع حجم عکس‌ها به سقف ${readableSize(MAX_TOTAL_SIZE)} رسید. چند عکس حذف کن.`
+        );
+        break;
+      }
+
+      try {
+        Object.defineProperty(file, "dedupeTag", { value: tag });
+      } catch {
+        /* بی‌اهمیت: فقط تشخیص تکراری را از دست می‌دهیم */
+      }
+      selectedFiles.push(file);
     }
-    if (file.size > MAX_SIZE) {
-      problems.push(`«${file.name}» بیشتر از ۲۰ مگابایته و رد شد.`);
-      continue;
-    }
-    if (selectedFiles.some((f) => f.name === file.name && f.size === file.size)) continue;
-    if (selectedFiles.length >= MAX_FILES) {
-      problems.push(`حداکثر ${faNum(MAX_FILES)} عکس می‌تونی انتخاب کنی.`);
-      break;
-    }
-    selectedFiles.push(file);
+  } finally {
+    addingFiles = false;
   }
 
   renderPreviews();
 
   if (problems.length > 0) {
     showToast(problems[0]);
+  } else if (savedBytes > 512 * 1024) {
+    showToast(`عکس‌ها برای ارسال سریع‌تر کوچک شدند (${readableSize(savedBytes)} کمتر).`);
   }
 }
 
@@ -318,8 +399,9 @@ function renderPreviews() {
     previewGrid.appendChild(div);
   });
 
+  const totalBytes = selectedFiles.reduce((sum, f) => sum + f.size, 0);
   previewCount.textContent = selectedFiles.length
-    ? `${faNum(selectedFiles.length)} عکس`
+    ? `${faNum(selectedFiles.length)} عکس از ${faNum(MAX_FILES)} • مجموع ${readableSize(totalBytes)}`
     : "";
 
   if (selectedFiles.length > 0) {

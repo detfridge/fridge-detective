@@ -26,9 +26,12 @@ const { GoogleGenAI } = require("@google/genai");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const MAX_IMAGES = 15;
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 20 * 1024 * 1024 },
+  limits: { fileSize: MAX_IMAGE_BYTES },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith("image/")) cb(null, true);
     else cb(new Error("فقط فایل تصویری قابل قبول است"), false);
@@ -193,7 +196,7 @@ function rateLimited(ip) {
   return arr.length > RATE_MAX;
 }
 
-app.post("/api/analyze", upload.array("images", 10), async (req, res) => {
+app.post("/api/analyze", upload.array("images", MAX_IMAGES), async (req, res) => {
   try {
     if (!process.env.GEMINI_API_KEY) {
       return res
@@ -282,7 +285,8 @@ app.use((err, req, res, next) => {
   console.error("خطای سرور:", err.message);
   let msg = err.message || "خطای نامشخص سرور";
   if (err.code === "LIMIT_FILE_SIZE") msg = "حجم عکس بیشتر از ۲۰ مگابایت است.";
-  if (err.code === "LIMIT_FILE_COUNT") msg = "حداکثر ۱۰ عکس مجاز است.";
+  if (err.code === "LIMIT_FILE_COUNT" || err.code === "LIMIT_UNEXPECTED_FILE")
+    msg = `حداکثر ${faNum(MAX_IMAGES)} عکس مجاز است.`;
   res.status(400).json({ error: msg });
 });
 

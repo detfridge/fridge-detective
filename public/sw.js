@@ -1,7 +1,7 @@
 // سرویس‌ورکر کارآگاه یخچال — پوسته اپ را کش می‌کند تا آفلاین باز شود.
 // تحلیل تصویر همیشه نیاز به اینترنت دارد و کش نمی‌شود.
 
-const CACHE = "fridge-detective-v3";
+const CACHE = "fridge-detective-v4";
 
 const SHELL = [
   "./",
